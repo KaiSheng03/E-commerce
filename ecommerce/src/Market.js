@@ -1,12 +1,10 @@
 import { Fragment, useEffect, useState } from "react";
 
 const Market = () => {
-    const [data, setData] = useState([]);
+    const [data, setData] = useState([{}]);
     
     useEffect(() => {
-        fetch('/market', {
-            method: 'GET'
-        })
+        fetch('/market')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
