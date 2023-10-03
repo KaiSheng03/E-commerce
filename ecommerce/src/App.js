@@ -13,6 +13,7 @@ function App() {
         console.log('Error fetching data:', error);
       });
   }, []);
+  
   return (
     <h1>Hello1</h1>
   );
