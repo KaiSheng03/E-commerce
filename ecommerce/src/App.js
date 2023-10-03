@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react';
+import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
+import Navbar from './Navbar';
+import Home from './Home';
+import Market from './Market';
 
 function App() {
-  const [data, setData] = useState([])
-  useEffect(() => {
-    fetch("/market")
-      .then(res => res.json())
-      .then((data) => {
-        setData(data);
-        console.log(data);
-      })
-      .catch((error) => {
-        console.log('Error fetching data:', error);
-      });
-  }, []);
-  
   return (
-    <h1>Hello1</h1>
+    <Router>
+      <Navbar />
+      <Switch>
+        <Route exact path='/'>
+          <Home />
+        </Route>
+        <Route path='/market'>
+          <Market />
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 

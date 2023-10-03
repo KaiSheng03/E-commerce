@@ -4,6 +4,8 @@ from market.models import Item, User
 from market.forms import RegisterForm, LoginForm, PurchaseItemForm, SellItemForm
 from market import db
 from flask_login import login_user, logout_user, login_required, current_user
+from flask_restful import Resource, marshal_with, fields
+
 
 @app.route('/', methods=['POST', 'GET'])
 @app.route('/home')
@@ -12,7 +14,25 @@ def home():
 
 @app.route('/market')
 def market():
-    return {"members": ["Member1", "Member2"]}
+    purchase_form = PurchaseItemForm()
+    selling_form = SellItemForm()
+    if request.method == 'POST':
+        purchased_item = request.form.get('purchased_item')
+        p_item_object = Item.query.filter_by(name=purchased_item).first()
+        if p_item_object:
+            if current_user.can_purchase(p_item_object):
+                p_item_object.buy(current_user)
+                flash(f'You purchased {p_item_object.name} for {p_item_object.price}$', category='success')
+            else:
+                flash(f"Unfortunately, you don't have enough money to purchase {p_item_object}", category='danger')
+        
+        sold_item = request.form.get('sold_item')
+        s_item_object = Item.query.filter_by(name=sold_item).first()
+        if s_item_object:
+            if current_user.can_sell(s_item_object):
+                s_item_object.sell(current_user)
+                flash(f"You sold {s_item_object.name} for {s_item_object.price}$", category='success')
+
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
