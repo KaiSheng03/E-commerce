@@ -19,7 +19,7 @@ const Register = () => {
             res => res.json()
         ).then(
             data => {
-                if(data.registerStatus == "Success"){
+                if(data.registerStatus === "Success"){
                     history.push('/market')
                 }
             }
