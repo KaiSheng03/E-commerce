@@ -5,6 +5,7 @@ from market.forms import RegisterForm, LoginForm, PurchaseItemForm, SellItemForm
 from market import db
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_restful import Resource, marshal_with, fields
+import json
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -13,6 +14,7 @@ def home():
     return render_template('home.html')
 
 @app.route('/market')
+@login_required
 def market():
     purchase_form = PurchaseItemForm()
     selling_form = SellItemForm()
@@ -36,36 +38,51 @@ def market():
 
 @app.route('/register', methods=['POST', 'GET'])
 def register():
-    form = RegisterForm()
-    if form.validate_on_submit():
-        user_to_create = User(username=form.username.data,
-                              email=form.email.data,
-                              password = form.password1.data)
-        db.session.add(user_to_create)
-        db.session.commit()
-        login_user(user_to_create)
-        flash(f'Account created successfully! You are now logged in as {user_to_create.username}', category='success')
-        return redirect(url_for('market'))
-        
-    if form.errors != {}:
-        for err_msg in form.errors.values():
-            flash(f'There was an error with creating a user {err_msg}', category='danger')
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+
+        existing_user = User.query.filter_by(email=email).first()
+        if existing_user:
+            return {"registerStatus": "Failed"}
+
+        else:
+            user_to_create = User(username=username,
+                                email=email,
+                                password=password)
+            db.session.add(user_to_create)
+            db.session.commit()
+            login_user(user_to_create)
+            flash(f'Account created successfully! You are now logged in as {user_to_create.username}', category='success')
+            return {"registerStatus": "Success"}
 
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        attempted_user = User.query.filter_by(username=form.username.data).first()
-        if attempted_user and attempted_user.check_password_correction(attempted_password=form.password.data):
+    if request.method == 'POST':
+        data = json.loads(request.data)
+        username = data.get('username')
+        print(username)
+        password = data.get('password')
+        attempted_user = User.query.filter_by(username=username).first()
+        if attempted_user and attempted_user.check_password_correction(attempted_password=password):
             login_user(attempted_user)
             flash(f'Success! you are logged in as {attempted_user.username}', category='success')
-            return redirect(url_for('market'))
+            return {"loginStatus": "Success"}
 
         else:
+            return {"loginStatus": "Failed"}
             flash('Username and password are not match! Please try again', category='danger')
+    
+    return jsonify({})
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
+@login_required
 def logout():
-    logout_user()
-    flash('You have been logged out!', category='success')
+    if request.method == 'POST':
+        name_logged_out = current_user.username
+        logout_user()
+        flash('You have been logged out!', category='success')
+        return jsonify({"name": name_logged_out})
