@@ -1,6 +1,22 @@
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 
 const Navbar = () => {
+    const [budget, setBudget] = useState('');
+    const [authenticated, setAuthenticated] = useState();
+
+    useEffect(() => {
+        fetch('/home').then(
+            res => res.json()
+        ).then(
+            data => {
+                setBudget(data.current_user_budget);
+                console.log(data.current_user_budget);
+            }    
+        ).catch(err => {
+            console.log(err)
+        })
+    },[])
+
     return (  
         <Fragment>
             <nav className="navbar navbar-expand-lg bg-dark navbar-dark">
@@ -18,7 +34,7 @@ const Navbar = () => {
                                     <a className="nav-link" href="/market">Market</a>
                                 </li>
                                 <li className="nav-item">
-                                    <a className="nav-link">Welcome</a>
+                                    <a className="nav-link">{budget} Welcome</a>
                                 </li>
                                 <li className="nav-item">
                                     <a className="nav-link" href="/logout">Logout</a>

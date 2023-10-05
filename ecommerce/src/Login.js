@@ -20,12 +20,13 @@ const Login = () => {
         ).then(
             data => {
                 if(data.loginStatus == "Success"){
-                    history.push('/market');
+                    console.log(data.current_user_id)
+                    window.location.href = "/market"
                 }
             }
-        ).catch(
-            err => console.log(err)
-        )
+        ).catch(err => {
+            console.log(err)
+        })
     }
     
     return (  

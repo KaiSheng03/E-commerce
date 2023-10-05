@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Navbar from "./Navbar";
 
 const Logout = () => {
     const [username, setUsername] = useState("");
@@ -16,8 +15,9 @@ const Logout = () => {
             data => {
                 setUsername(data.name);
             }
-        )
-    
+        ).catch(err => {
+            console.log(err)
+        })
     }, [])
     
     return (

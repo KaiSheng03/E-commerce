@@ -16,6 +16,4 @@ login_manager.login_view = '/login'
 login_manager.login_message_category = 'info'
 api = Api(app)
 
-
 from market import route
-from market import apis
