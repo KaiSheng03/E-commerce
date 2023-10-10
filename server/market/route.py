@@ -3,14 +3,17 @@ from flask import flash, request, jsonify
 from market.models import Item, User
 from market import db, api
 from flask_login import login_user, logout_user, login_required, current_user
-from flask_restful import Resource, marshal_with, fields
+from flask_restful import Resource, marshal_with, fields, marshal
 import json
 
 @app.route('/', methods=['POST', 'GET'])
-@app.route('/home')
+@app.route('/navbar')
 def home():
-    return {"current_user_budget": current_user.budget}
-
+    if current_user:
+        return {"current_user_budget": current_user.budget, "current_user_logged_in": True}
+    else:
+        return {"current_user_logged_in": False}
+    
 @app.route('/market/purchase', methods=['POST','GET'])
 def purchase():
     if request.method == 'POST':
@@ -75,8 +78,6 @@ def login():
         else:
             return {"loginStatus": "Failed"}
     
-    return jsonify({})
-
 @app.route('/logout', methods=['POST'])
 @login_required
 def logout():
@@ -84,8 +85,7 @@ def logout():
         name_logged_out = current_user.username
         logout_user()
         flash('You have been logged out!', category='success')
-        return jsonify({"name": name_logged_out})
-
+        return jsonify({"name": name_logged_out, "current_user_logged_in": False})
 
 items_field = {
     'id': fields.Integer,
@@ -97,17 +97,21 @@ items_field = {
 }
 
 class MarketResource(Resource):
-    @marshal_with(items_field)
     def get(self):
-        items = Item.query.filter_by(owner=None).all()
-        print(items)
-        return items
+        if current_user:
+            items = Item.query.filter_by(owner=None).all()
+            return {'items':marshal(items, items_field), 'current_user_logged_in': True}
+        else:
+            current_user_logged_in = False
+            return {'current_user_logged_in': False}
 
 class OwnedItems(Resource):
-    @marshal_with(items_field)
     def get(self):
-        ownedItems = Item.query.filter_by(owner=current_user.id).all()
-        return ownedItems
+        if current_user:
+            ownedItems = Item.query.filter_by(owner=current_user.id).all()
+            return {'ownedItems':marshal(ownedItems, items_field), "current_user_logged_in": True}
+        else:
+            return {"current_user_logged_in": False}
 
 api.add_resource(MarketResource, '/market/items/')
 api.add_resource(OwnedItems, '/market/owned/')

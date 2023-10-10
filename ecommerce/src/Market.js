@@ -1,28 +1,40 @@
 import { Fragment, useEffect, useState } from "react";
-import ItemsModal from "./ItemsModal";
+import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
 
 const Market = () => {
-    const [item, setData] = useState([]);
+    const [item, setItem] = useState([]);
+    const [authenticated, setAuthenticated] = useState(false);
+    const [ownedItem, setOwnedItem] = useState([]);
+
     useEffect(() => {
         fetch('/market/items/').then(
             res => res.json()
         ).then(
             data => {
-                setData(data)
-                console.log(data)
+                setAuthenticated(data.current_user_logged_in);
+                if({authenticated}){
+                    setItem(data.items)
+                }
+                else{
+                    window.location.href = '/login'
+                }
             }
         ).catch(err => {
             console.log(err)
         })
     }, [])
     
-    const [ownedItem, setOwnedItem] = useState([]);
     useEffect(() => {
         fetch('/market/owned/').then(
             res => res.json()
         ).then(
             item => {
-                setOwnedItem(item)
+                if({authenticated}){
+                    setOwnedItem(item.ownedItems)
+                }
+                else{
+                    window.location.href = '/login'
+                }
             }
         ).catch(err => {
             console.log(err)
@@ -64,7 +76,7 @@ const Market = () => {
             window.location.href = "/market"
         )
     }
-
+    
     return (  
         <Fragment>
             <div className="row" style={{ marginTop: "20px", marginLeft: "20px" }}>

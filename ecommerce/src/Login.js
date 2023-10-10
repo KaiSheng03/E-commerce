@@ -1,10 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
-import Market from "./Market";
-import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
-import Navbar from "./Navbar";
 
 const Login = () => {
-    const history = useHistory();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 

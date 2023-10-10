@@ -15,7 +15,12 @@ const Logout = () => {
             data => {
                 setUsername(data.name);
             }
-        ).catch(err => {
+        ).then(
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 5000)
+        )
+        .catch(err => {
             console.log(err)
         })
     }, [])

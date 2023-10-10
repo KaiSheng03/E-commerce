@@ -5,12 +5,14 @@ const Navbar = () => {
     const [authenticated, setAuthenticated] = useState();
 
     useEffect(() => {
-        fetch('/home').then(
+        fetch('/navbar').then(
             res => res.json()
         ).then(
             data => {
-                setBudget(data.current_user_budget);
-                console.log(data.current_user_budget);
+                if(data.current_user_logged_in){
+                    setBudget(data.current_user_budget);
+                }
+                setAuthenticated(data.current_user_logged_in);
             }    
         ).catch(err => {
             console.log(err)
@@ -26,6 +28,7 @@ const Navbar = () => {
                     <span className="navbar-toggler-icon"></span>
                     </button>
                     <div className="collapse navbar-collapse" id="navbarNav">
+                        {authenticated && 
                             <ul className="navbar-nav">
                                 <li className="nav-item">
                                     <a className="nav-link" aria-current="page" href="/">Home</a>
@@ -39,7 +42,8 @@ const Navbar = () => {
                                 <li className="nav-item">
                                     <a className="nav-link" href="/logout">Logout</a>
                                 </li>
-                            </ul>
+                            </ul>}
+                        {!authenticated && 
                             <ul className="navbar-nav">
                                 <li className="nav-item">
                                     <a className="nav-link" href="/login">Login</a>
@@ -47,7 +51,7 @@ const Navbar = () => {
                                 <li className="nav-item">
                                     <a className="nav-link" href="/register">Register</a>
                                 </li>
-                            </ul>                            
+                            </ul>}                        
                     </div>
                 </div>
             </nav>
