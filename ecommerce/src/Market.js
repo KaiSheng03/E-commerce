@@ -1,5 +1,6 @@
 import { Fragment, useEffect, useState } from "react";
 import { Redirect } from "react-router-dom/cjs/react-router-dom.min";
+import Login from "./Login";
 
 const Market = () => {
     const [item, setItem] = useState([]);
@@ -13,27 +14,9 @@ const Market = () => {
             data => {
                 setAuthenticated(data.current_user_logged_in);
                 if({authenticated}){
-                    setItem(data.items)
-                }
-                else{
-                    window.location.href = '/login'
-                }
-            }
-        ).catch(err => {
-            console.log(err)
-        })
-    }, [])
-    
-    useEffect(() => {
-        fetch('/market/owned/').then(
-            res => res.json()
-        ).then(
-            item => {
-                if({authenticated}){
-                    setOwnedItem(item.ownedItems)
-                }
-                else{
-                    window.location.href = '/login'
+                    console.log(data.current_user_logged_in)
+                    setItem(data.items);
+                    setOwnedItem(data.ownedItems);
                 }
             }
         ).catch(err => {
@@ -77,9 +60,16 @@ const Market = () => {
         )
     }
     
+    if({authenticated} == false){
+        return(
+            <Login />
+        )
+    }
+
     return (  
         <Fragment>
-            <div className="row" style={{ marginTop: "20px", marginLeft: "20px" }}>
+            {authenticated && 
+                <div className="row" style={{ marginTop: "20px", marginLeft: "20px" }}>
                 <div className="col-8">
                     <h2>Available items on the market</h2>
                     <p>Click on one of the items to start buying</p>
@@ -221,6 +211,9 @@ const Market = () => {
                     </div>
                 </div>
             </div>
+            }
+
+            
         </Fragment>
     );
 }
